@@ -2,44 +2,50 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-        IMAGE_NAME = "mujaheed00/mynginximage:latest"
-        CONTAINER_NAME = "my_app"
+        DOCKER_IMAGE = "mujaheed00/mynginximage"
     }
 
     stages {
-
-        stage('Build docker image') {
+        stage('Clone Repo') {
             steps {
-                sh 'sudo docker build -t $IMAGE_NAME:$BUILD_NUMBER .'
+                // Clone private repo using SSH
+                sh 'git clone git@github.com:mujaheed00/docker-build-pipeline.git'
+                sh 'ls -l docker-build-pipeline'
             }
         }
 
-        stage('Login to Docker Hub') {
+        stage('Build Docker Image') {
             steps {
                 sh '''
-                  echo $DOCKERHUB_CREDENTIALS_PSW | \
-                  sudo docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                cd docker-build-pipeline
+                docker build -t $DOCKER_IMAGE .
                 '''
             }
         }
 
-        stage('Push image') {
+        stage('Docker Login') {
             steps {
-                sh 'sudo docker push $IMAGE_NAME:$BUILD_NUMBER'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
             }
         }
 
-        stage('Run container') {
+        stage('Push Docker Image') {
             steps {
                 sh '''
-                  sudo docker stop $CONTAINER_NAME || true
-                  sudo docker rm $CONTAINER_NAME || true
+                docker push $DOCKER_IMAGE
+                '''
+            }
+        }
 
-                  sudo docker run -d \
-                    --name $CONTAINER_NAME \
-                    -p 80:80 \
-                    $IMAGE_NAME:$BUILD_NUMBER
+        stage('Deploy Container') {
+            steps {
+                sh '''
+                docker rm -f mynginx || true
+                docker run -d --name mynginx -p 80:80 $DOCKER_IMAGE
                 '''
             }
         }
