@@ -8,11 +8,10 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                // Clone private repo using GitHub PAT
                 withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     sh '''
-                    git clone https://$GIT_USER:$GIT_TOKEN@github.com/mujaheed00/docker-build-pipeline.git
-                    ls -l docker-build-pipeline
+                    git clone https://$GIT_USER:$GIT_TOKEN@github.com/mujaheed00/docker-nginx-app.git
+                    ls -l docker-nginx-app
                     '''
                 }
             }
@@ -21,7 +20,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                cd docker-build-pipeline
+                cd docker-nginx-app
                 docker build -t $DOCKER_IMAGE .
                 '''
             }
