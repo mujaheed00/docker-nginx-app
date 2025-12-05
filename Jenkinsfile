@@ -8,12 +8,9 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     sh '''
                     git clone https://$GIT_USER:$GIT_TOKEN@github.com/mujaheed00/docker-nginx-app.git
-                    ls -l docker-nginx-app
                     '''
-                }
             }
         }
 
@@ -47,7 +44,6 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh '''
-                docker rm -f mynginx || true
                 docker run -d --name mynginx -p 80:80 $DOCKER_IMAGE
                 '''
             }
