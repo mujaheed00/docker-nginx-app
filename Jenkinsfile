@@ -8,9 +8,13 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                // Clone private repo using SSH
-                sh 'git clone git@github.com:mujaheed00/docker-build-pipeline.git'
-                sh 'ls -l docker-build-pipeline'
+                // Clone private repo using GitHub PAT
+                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    sh '''
+                    git clone https://$GIT_USER:$GIT_TOKEN@github.com/mujaheed00/docker-build-pipeline.git
+                    ls -l docker-build-pipeline
+                    '''
+                }
             }
         }
 
