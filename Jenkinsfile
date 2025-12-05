@@ -6,17 +6,17 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repo') {
-            steps {
-                // Clone private repo using GitHub PAT
-                withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-                    sh '''
-                    git clone https://$GIT_USER:$GIT_TOKEN@github.com/mujaheed00/docker-build-pipeline.git
-                    ls -l docker-build-pipeline
-                    '''
-                }
-            }
+       stage('Clone Repo') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+            sh '''
+            git clone https://$GIT_USER:$GIT_TOKEN@github.com/mujaheed00/docker-build-pipeline.git
+            ls -l docker-build-pipeline
+            '''
         }
+    }
+}
+
 
         stage('Build Docker Image') {
             steps {
