@@ -9,7 +9,7 @@ pipeline {
         stage('Clone Repo') {
             steps {
                     sh '''
-                    git clone https://$GIT_USER:$GIT_TOKEN@github.com/mujaheed00/docker-nginx-app.git
+                    git clone https://github.com/mujaheed00/docker-nginx-app.git
                     '''
             }
         }
